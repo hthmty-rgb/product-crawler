@@ -15,7 +15,7 @@
     "playwright": "^1.40.0",
     "better-sqlite3": "^9.2.2",
     "tesseract.js": "^5.0.4",
-    "@aspect-dev/zxing": "^0.3.0",
+"@zxing/library": "^0.21.3",
     "sharp": "^0.33.1",
     "cheerio": "^1.0.0-rc.12",
     "uuid": "^9.0.1",
