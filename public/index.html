@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supermarket Product Crawler</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1>🛒 Supermarket Product Crawler</h1>
+      <p class="subtitle">Build your product database from any supermarket website</p>
+    </header>
+
+    <!-- Status Bar -->
+    <div class="status-bar" id="statusBar">
+      <span class="status-dot"></span>
+      <span id="serverStatus">Connecting...</span>
+      <span class="stats">
+        <span id="totalProducts">0</span> products in database
+      </span>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- New Crawl Section -->
+      <section class="card new-crawl">
+        <h2>Start New Crawl</h2>
+        <form id="crawlForm">
+          <div class="form-group">
+            <label for="homepageUrl">Supermarket Homepage URL</label>
+            <input 
+              type="url" 
+              id="homepageUrl" 
+              placeholder="https://www.example-supermarket.com"
+              required
+            >
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>
+                <input type="checkbox" id="enableOCR" checked>
+                Enable OCR (text extraction)
+              </label>
+            </div>
+            <div class="form-group">
+              <label>
+                <input type="checkbox" id="enableBarcode" checked>
+                Enable Barcode Detection
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="concurrency">Concurrency</label>
+              <input type="number" id="concurrency" value="2" min="1" max="5">
+            </div>
+            <div class="form-group">
+              <label for="requestDelay">Delay (ms)</label>
+              <input type="number" id="requestDelay" value="1000" min="500" max="5000" step="100">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="startBtn">
+            ▶ Start Crawl
+          </button>
+        </form>
+      </section>
+
+      <!-- Active Crawl Section -->
+      <section class="card active-crawl" id="activeCrawl" style="display: none;">
+        <h2>Active Crawl</h2>
+        <div class="crawl-info">
+          <p><strong>Job ID:</strong> <span id="activeJobId">-</span></p>
+          <p><strong>URL:</strong> <span id="activeUrl">-</span></p>
+          <p><strong>Status:</strong> <span id="activeStatus" class="status-badge">-</span></p>
+        </div>
+
+        <div class="progress-section">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+          </div>
+          <div class="progress-stats">
+            <div class="stat">
+              <span class="stat-value" id="processedProducts">0</span>
+              <span class="stat-label">Products</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value" id="processedCategories">0</span>
+              <span class="stat-label">Categories</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value" id="detectedBarcodes">0</span>
+              <span class="stat-label">Barcodes</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value" id="crawlErrors">0</span>
+              <span class="stat-label">Errors</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="crawl-actions">
+          <button class="btn btn-danger" id="stopBtn">⏹ Stop Crawl</button>
+        </div>
+
+        <div class="error-log" id="errorLog" style="display: none;">
+          <h3>Recent Errors</h3>
+          <ul id="errorList"></ul>
+        </div>
+      </section>
+
+      <!-- Export Section -->
+      <section class="card export-section">
+        <h2>Export Data</h2>
+        <div class="export-buttons">
+          <a href="/api/export/csv" class="btn btn-secondary" download>
+            📄 Download CSV
+          </a>
+          <a href="/api/export/zip" class="btn btn-secondary" download>
+            🖼 Download Images ZIP
+          </a>
+          <a href="/api/export/database" class="btn btn-secondary" download>
+            🗄 Download SQLite Database
+          </a>
+        </div>
+      </section>
+
+      <!-- Statistics Section -->
+      <section class="card stats-section">
+        <h2>Database Statistics</h2>
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card">
+            <span class="stat-value" id="statTotalProducts">0</span>
+            <span class="stat-label">Total Products</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="statTotalBarcodes">0</span>
+            <span class="stat-label">Detected Barcodes</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="statTotalJobs">0</span>
+            <span class="stat-label">Crawl Jobs</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="statCompletedJobs">0</span>
+            <span class="stat-label">Completed Jobs</span>
+          </div>
+        </div>
+
+        <div class="sites-breakdown" id="sitesBreakdown">
+          <h3>Products by Site</h3>
+          <div id="sitesList"></div>
+        </div>
+      </section>
+
+      <!-- Recent Products Section -->
+      <section class="card products-section">
+        <h2>Recent Products</h2>
+        <div class="products-table-wrapper">
+          <table class="products-table" id="productsTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Brand</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Barcode</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="productsBody">
+              <tr>
+                <td colspan="7" class="empty-state">No products yet. Start a crawl to populate the database.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" id="pagination"></div>
+      </section>
+
+      <!-- Job History Section -->
+      <section class="card history-section">
+        <h2>Crawl History</h2>
+        <table class="jobs-table" id="jobsTable">
+          <thead>
+            <tr>
+              <th>Job ID</th>
+              <th>URL</th>
+              <th>Status</th>
+              <th>Products</th>
+              <th>Started</th>
+              <th>Duration</th>
+            </tr>
+          </thead>
+          <tbody id="jobsBody">
+            <tr>
+              <td colspan="6" class="empty-state">No crawl history yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Supermarket Product Crawler v1.0 | Built with Node.js, Playwright, and SQLite</p>
+    </footer>
+  </div>
+
+  <!-- Product Modal -->
+  <div class="modal" id="productModal">
+    <div class="modal-content">
+      <span class="modal-close" id="modalClose">&times;</span>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

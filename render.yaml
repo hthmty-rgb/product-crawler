@@ -1,0 +1,20 @@
+# Render Blueprint Configuration
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: supermarket-crawler
+    env: node
+    plan: starter
+    buildCommand: npm ci && npx playwright install chromium --with-deps
+    startCommand: node server/index.js
+    healthCheckPath: /api/status
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+    disk:
+      name: crawler-data
+      mountPath: /app/data
+      sizeGB: 10

@@ -1,0 +1,31 @@
+{
+  "name": "supermarket-crawler",
+  "version": "1.0.0",
+  "description": "Web-based supermarket product crawler with barcode detection and OCR",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "playwright": "^1.40.0",
+    "better-sqlite3": "^9.2.2",
+    "tesseract.js": "^5.0.4",
+    "@aspect-dev/zxing": "^0.3.0",
+    "sharp": "^0.33.1",
+    "cheerio": "^1.0.0-rc.12",
+    "uuid": "^9.0.1",
+    "archiver": "^6.0.1",
+    "csv-writer": "^1.6.0",
+    "p-queue": "^7.4.1",
+    "p-retry": "^6.1.0",
+    "node-fetch": "^3.3.2",
+    "xml2js": "^0.6.2",
+    "cors": "^2.8.5",
+    "morgan": "^1.10.0"
+  }
+}
